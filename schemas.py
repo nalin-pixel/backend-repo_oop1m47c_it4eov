@@ -1,48 +1,41 @@
 """
-Database Schemas
+Database Schemas for Hostel Management App
 
-Define your MongoDB collection schemas here using Pydantic models.
-These schemas are used for data validation in your application.
-
-Each Pydantic model represents a collection in your database.
-Model name is converted to lowercase for the collection name:
-- User -> "user" collection
-- Product -> "product" collection
-- BlogPost -> "blogs" collection
+Each Pydantic model represents a MongoDB collection.
+Collection name = lowercase of the class name.
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
+import datetime as dt
 
-# Example schemas (replace with your own):
-
-class User(BaseModel):
-    """
-    Users collection schema
-    Collection name: "user" (lowercase of class name)
-    """
-    name: str = Field(..., description="Full name")
+class Student(BaseModel):
+    name: str = Field(..., description="Full name of the student")
     email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
-    age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
-    is_active: bool = Field(True, description="Whether user is active")
+    roll: str = Field(..., description="Roll number / student ID")
+    room: str = Field(..., description="Room number")
+    course: str = Field(..., description="Course / program")
+    year: int = Field(..., ge=1, le=6, description="Year of study")
 
-class Product(BaseModel):
-    """
-    Products collection schema
-    Collection name: "product" (lowercase of class name)
-    """
-    title: str = Field(..., description="Product title")
-    description: Optional[str] = Field(None, description="Product description")
-    price: float = Field(..., ge=0, description="Price in dollars")
-    category: str = Field(..., description="Product category")
-    in_stock: bool = Field(True, description="Whether product is in stock")
+class Laundryrequest(BaseModel):
+    student_id: str = Field(..., description="Reference to Student document _id (string)")
+    items: List[str] = Field(..., description="List of items to be laundered")
+    preferred_date: dt.date = Field(..., description="Preferred date for laundry pickup")
+    status: str = Field("pending", description="Status of the request: pending, in_progress, done")
 
-# Add your own schemas here:
-# --------------------------------------------------
+class Attendancerecord(BaseModel):
+    student_id: str = Field(..., description="Reference to Student document _id (string)")
+    day: dt.date = Field(..., description="Attendance date")
+    present: bool = Field(True, description="Whether the student is present")
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+class Menu(BaseModel):
+    day: dt.date = Field(..., description="Menu date")
+    breakfast: str = Field(..., description="Breakfast items")
+    lunch: str = Field(..., description="Lunch items")
+    dinner: str = Field(..., description="Dinner items")
+
+class Issue(BaseModel):
+    student_id: str = Field(..., description="Reference to Student document _id (string)")
+    title: str = Field(..., description="Issue title")
+    description: str = Field(..., description="Detailed description of the issue")
+    status: str = Field("open", description="Status: open, in_progress, resolved")
